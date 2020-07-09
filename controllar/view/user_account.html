@@ -1,0 +1,85 @@
+<form  action="/user_account" method="post" >
+    <div class="container">
+      <h2>Welcome to online image editing bootcamp</h2>
+      <h2>Please register your account/ you already have account so click on login tab.</h2>
+      <hr>
+  
+      <label for="name"><b>Name</b></label>
+   <input type="text" placeholder="name" name="name" required>
+  </br>
+      <label for="email"><b>Email</b></label>
+      <input type="text" placeholder="Enter Email" name="email" required>
+  
+      <br>
+      <label for="password"><b>Password</b></label>
+      <input type="password" placeholder="Enter Password" name="password" required>
+  
+      <br>
+      <label for="confirm_psw"><b>confirm Password</b></label>
+      <input type="password" placeholder="confirm Password" name="confirm_psw" required>
+      <br>
+
+      <br>
+      <label for="user_id"><b>user id</b></label>
+      <input type="text" placeholder="user_id" name="user_id" required>
+      <br>
+
+      <br>
+      <label for="stage"><b>Instrouctore/student</b></label>
+      <input type="text" placeholder="stage" name="stage" required>
+      <br>
+  
+  
+  
+
+      <p>By creating an account you agree to our <a href="#" style="color:dodgerblue">Terms & Privacy</a>.</p>
+  
+      <div class="clearfix">
+        <button type="button" class="cancelbtn">Cancel</button>
+        <button type="submit" class="signupbtn">signup
+
+        </button>
+
+      </div>
+    </div>
+  </form>
+
+  <form  action="/login" method="post" style="border:1px solid #ccc">
+    <div class="container">
+      <!-- <h2>If you have already account so login</h2> -->
+      <h2>Please Login your account.</h2>
+      <hr>
+
+  
+      <label for="email"><b>Email</b></label>
+      <input type="text" placeholder="Enter Email" name="email" required>
+  
+      <br>
+      <label for="password"><b>Password</b></label>
+      <input type="password" placeholder="Enter Password" name="password" required>
+  
+<br>
+
+<label for="browser"><b>Chose any stage:</b></label>
+        <input list="browsers" name="browser" id="browsers">
+        <datalist id="browsers">
+            <option value="student">
+            <option value="instructor">
+        </datalist>
+<br>
+<br>
+<label for="user Id"><b>User Id</b></label>
+<input type="text" placeholder="Enter user id" name="user_id" required>
+
+      <p>By creating an account you agree to our <a href="#" style="color:dodgerblue">Terms & Privacy</a>.</p>
+  
+      <div class="clearfix">
+        <button type="button" class="cancelbtn">Cancel</button>
+        <button type="submit" class="loginbtn">submit
+        <!-- <a href="http://localhost:3500/login">login</a> -->
+        </button>
+
+      </div>
+    </div>
+  </form>
+
