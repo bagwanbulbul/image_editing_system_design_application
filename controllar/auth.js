@@ -9,8 +9,6 @@ var app = express();
 app.use(bodyParser.urlencoded({ extended: false }))
 
 
-// var nJwt_data = require('njwt');
-
 
 app.get('/introduction', function (req, res) {
     res.sendFile(path.join(__dirname + '/view/introduction.html'));
@@ -45,38 +43,15 @@ app.post("/user_account",(req,res)=>{
         user_id:req.body.user_id,
         stage:req.body.stage
     }
-    console.log(userDetails)
 
     let response = knex1.insert_token(userDetails)
     response.then((data)=>{
-        // res.redirect("/loan_intro")
-        console.log(data)
         res.redirect("/editing_task")
     }).catch((err)=>{
         console.log(err)
-        res.send("erorrrr")
+        res.send(err)
     })
 })
-
-// app.get("/login",function(req,res){
-//     let email=req.body.email
-//     let password=req.body.psw
-//     let response=add.select(email,password)
-//     response.then((data)=>{
-//         if(data.length==0){
-//             res.send("your email is incorect please tryy again letter")
-//         }
-//         else if(data[0]["password"]==password){
-//             let token =jwt.sign({"user":data[0]},"secret_key")
-//             res.cookie(token)
-//             jwt.verify(token,"secret_key",(err,result)=>{
-//                 res.sendFile(path.join(__dirname+"/view/student_task.html"))
-//             })
-//         }
-//     }).catch((err)=>{
-//         res.send("errrrrrrr")
-//     })
-// })
 
 app.post("/login",function(req,res){
     let emails=req.body.email;
@@ -91,14 +66,11 @@ app.post("/login",function(req,res){
         console.log(data)
         if(data.length==0){
             res.send("your email is incorrect...")
-            console.log("hgggggggggggggggggggggggggggggggggggggggggggggg")
         }
         else if(data[0]["password"]==passwords){
             let token = jwt.sign({"user":data[0]},"secret_key")
             res.cookie(token)
             jwt.verify(token,"secret_key",(err,rsult)=>{
-                console.log(data[0]["stage"])
-                console.log(data[0]["user_id"])
                 if(data[0]["stage"] === stages && data[0]["user_id"] === uid){
                     console.log("succesfully login")              
                     res.sendFile(path.join(__dirname+"/view/student_task.html"))
