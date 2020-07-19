@@ -1,0 +1,28 @@
+<table border="1">
+  <tr>
+      <th>id</th>
+      <th>Full Name</th>
+      <th>Email Address</th>
+      <th>Task File</th>
+  </tr>
+  
+  <%
+  if(userData.length!=0){
+  var i=1;
+  userData.forEach(function(data){
+  %>
+  <tr>
+      <td><%=i; %></td>
+      <td><%=data.name %></td>
+      <td><%=data.email %></td>
+      <td><%=data.task %></td>
+      <td><a href="/user/edit/<%=data.id%>">Edit</a></td>
+      <td><a href="/user/delete/<%=data.id%>">Delete</a></td>
+  </tr>
+  <%  i++; }) %>
+  <% } else{ %>
+      <tr>
+          <td colspan="7">No Data Found</td>
+      </tr>
+  <% } %>
+</table>

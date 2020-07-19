@@ -11,6 +11,15 @@ var app = express();
 let pdf = require("html-pdf");
 app.use(bodyParser.urlencoded({ extended: false }))
 
+app.set("views",path.join(__dirname,"views")) 
+app.set("view engine","ejs") 
+
+
+app.use(express.static(path.join(__dirname,'/image')));
+app.use(multer({ dest : 'images' }).single('myfile')); 
+
+// const helpers = require("./image_edit")
+
 
 app.get('/introduction', function (req, res) {
     res.sendFile(path.join(__dirname + '/shivani.txt'));
@@ -52,18 +61,14 @@ app.get("/advanced_student",(req,res)=>{
 
 })
 
-// app.use(express.static(__dirname+"/view/upload.html"));
+app.get("/confirming_detail",(req,res)=>{
+    res.sendFile(path.join(__dirname+"/view/end.html"))
 
-// const storage = multer.diskStorage({
-//     destination: function(req, file, cb) {
-//         cb(null, 'uploads/');
-//     },
+})
 
-//     // By default, multer removes file extensions so let's add them back
-//     filename: function(req, file, cb) {
-//         cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
-//     }
-// });
+app.get("/instractor_page",(req,res)=>{
+    res.sendFile(path.join(__dirname+"/view/instractor_page.html"))
+})
 
 app.post("/user_account",(req,res)=>{
     let userDetails={
@@ -89,27 +94,28 @@ app.post("/login",function(req,res){
     let passwords=req.body.password;
     let stages = req.body.browser
     let uid = req.body.user_id
-    console.log(emails,passwords,stages,uid)
 
 
     let response=knex1.select(emails,passwords)
     response.then((data)=>{
-        console.log(data)
+        // console.log(data)
         if(data.length==0){
             res.send("your email is incorrect...")
         }
-        else if(data[0]["password"]==passwords){
+        else if(data[0]["password"]===passwords){
             let token = jwt.sign({"user":data[0]},"secret_key")
-            res.cookie(token)
             jwt.verify(token,"secret_key",(err,rsult)=>{
-                if(data[0]["stage"] === stages && data[0]["user_id"] === uid){
+                if( data[0]["user_id"] === uid && stages==="student"){
                     console.log("succesfully login") 
                     res.redirect("/login_account")             
                     // res.sendFile(path.join(__dirname+"/view/introduction.html"))
 
-                }else{
+                }else if ("instrouctore" == stages){
+                    res.redirect("/instractor_page")
+                }   else{
                     res.send("you are not a instructor")
-                }   
+
+                }
             })
         }
     }).catch((err)=>{
@@ -152,56 +158,97 @@ app.post("/generateReport", (req, res) => {
 
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
-        cb(null, 'uploads/');
+        cb(null, path.join(__dirname+"/images/"));
     },
 
     // By default, multer removes file extensions so let's add them back
     filename: function(req, file, cb) {
-        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+        console.log(req.file)
+        cb(null, file.fieldname + '-' + Date.now() + ".jpg");
     }
 });
 
-app.post('/upload_multiple_images', (req, res) => {
-    // 10 is the limit I've defined for number of uploaded files at once
-    // 'multiple_images' is the name of our file input field
-    let upload = multer({ storage: storage, fileFilter: helpers.imageFilter }).array('multiple_images', 10);
-    upload(req, res, function(err) {
-        if (req.fileValidationError) {
-            return res.send(req.fileValidationError);
-        }
-        else if (!req.file){
-            return res.send("please select an image upload");
-        }
-        else if(err instanceof multer.MulterError){
-            return res.send(err);
-        }
-        else if(err){
-            return res.send(err)
-        }
-        // res.send("you have upload this image")
- 
-        let result = "You have uploaded these images: <hr />";
-        const files = req.files;
-        let index, len;
+var upload = multer({
+    storage: storage
+}).single('myfile');
+// .array("imgUploader", 3); //Field name and max count
 
-        // Loop through all the uploaded images and display them on frontend
-        for (index = 0, len = files.length; index < len; ++index) {
-            result += `<img src="${files[index].path}" width="300" style="margin-right: 20px;">`;
+// array(fieldname[, maxCount])
+
+
+app.post("/upload_multiple_images", function(req, res) {
+    var data = req.file
+    // console.log(data)
+    var studentDetails= {
+        task:data.filename
+    }
+    let response = knex1.student_task(studentDetails)
+    response.then((data)=>{
+        // console.log(data)
+    })
+    
+    upload(req, res, function(err) {
+        if (err) {
+            return res.send("Something went wrong!");
         }
-        result += '<hr/><a href="./">Upload more images</a>';
-        res.send(result);
+             res.redirect("/confirming_detail");
     });
 });
 
 
+app.post("/submit_once_data", function(req, res) {
+    var studentDetails= {
+        name:req.body.name,
+        email:req.body.email,
+        // user_id:req.body.user_id,
+    }
+    let response = knex1.confirm_data(studentDetails)
+    response.then((data)=>{
+        res.send("confirm data")
+    })
+});
 
+
+app.get("/student_details",(req,res)=>{
+    let response = knex1.select_submit_data()
+    response.then((data)=>{
+        res.render('student_details',{title:'User List', userData:data})
+    }).catch((err)=>{
+        console.log(err)
+    })
+})
+
+
+app.get("/user_list",(req,res)=>{
+    let response = knex1.select_submit_data()
+    response.then((data)=>{
+        res.render('user_list',{title:'User List', userData:data})
+    }).catch((err)=>{
+        console.log(err)
+    })
+})
+
+app.post("/add_grade",(req,res)=>{
+    var grad = req.body.stu_grade
+    var ids = req.body.stu_id 
+    // console.log(ids)
+    const quries = knex1.updatGrade(ids,grad)
+    quries.then((data)=>{
+        res.send("You give grade to all")
+    }).catch((err)=>{
+        console.log(err)
+        res.send(err)
+    })
+
+
+})
 
 app.post("/submission_data",(req,res)=>{
     if (req.url == '/fileupload') {
         var form = new formidable.IncomingForm();
         form.parse(req, function (err, fields, files) {
           res.write('File uploaded');
-          res.end();
+          res.send();
         });
       } else {
         res.writeHead(200, {'Content-Type': 'text/html'});
@@ -209,7 +256,7 @@ app.post("/submission_data",(req,res)=>{
         res.write('<input type="file" name="filetoupload"><br>');
         res.write('<input type="submit">');
         res.write('</form>');
-        return res.end();
+        return res.send();
       }
 })
 
@@ -217,4 +264,30 @@ app.post("/submission_data",(req,res)=>{
 
 app.listen(3500, () => {
     console.log("server started on port 3500")
+})
+
+app.post("/student_grade",function(req,res){
+    var student = {
+        name:req.body.name,
+        email:req.body.email,
+        student_grade:req.body.student_grade
+    } 
+    if(student.student_grade<=5 && student.student_grade>=1){
+        let response=knex1.grade(student)
+        response.then((data)=>{
+        res.send(data)
+        res.redirect("/my_grade")
+        console.log(data)
+        })
+        .catch((err)=>{
+            console.log(err)
+        })
+
+    }
+    
+})
+app.get("/my_grade",function(req,res){
+    res.sendFile(path.join(__dirname+"/view/student_grade.html"))
+    
+
 })
