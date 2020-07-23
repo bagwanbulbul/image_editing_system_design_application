@@ -171,20 +171,15 @@ const storage = multer.diskStorage({
 var upload = multer({
     storage: storage
 }).single('myfile');
-// .array("imgUploader", 3); //Field name and max count
-
-// array(fieldname[, maxCount])
 
 
 app.post("/upload_multiple_images", function(req, res) {
     var data = req.file
-    // console.log(data)
     var studentDetails= {
         task:data.filename
     }
     let response = knex1.student_task(studentDetails)
     response.then((data)=>{
-        // console.log(data)
     })
     
     upload(req, res, function(err) {
@@ -200,7 +195,6 @@ app.post("/submit_once_data", function(req, res) {
     var studentDetails= {
         name:req.body.name,
         email:req.body.email,
-        // user_id:req.body.user_id,
     }
     let response = knex1.confirm_data(studentDetails)
     response.then((data)=>{
@@ -283,8 +277,7 @@ app.post("/student_grade",function(req,res){
             console.log(err)
         })
 
-    }
-    
+    }   
 })
 app.get("/my_grade",function(req,res){
     res.sendFile(path.join(__dirname+"/view/student_grade.html"))
